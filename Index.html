@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>©NATHAN RICHARD PEHLKE - HEARLESS GLOBAL</title>
+    <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <style>
+        body { background:#000; color:#00ff88; font-family:monospace; padding:30px; text-align:center; }
+        .box { border:1px solid #0052FF; padding:20px; max-width:500px; margin:auto; background:#050505; }
+        select, input { width:100%; padding:15px; margin:10px 0; background:#000; border:1px solid #333; color:#fff; }
+        .btn { width:100%; padding:20px; background:#0052FF; color:#fff; border:none; font-weight:bold; cursor:pointer; }
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h1>HEARLESS GLOBAL</h1>
+        <p style="font-size:10px; color:#444;">©NATHAN RICHARD PEHLKE. NON-NEGOTIABLE TERMS. PRIVATE PROPERTY EXCHANGE.</p>
+        
+        <select id="type" onchange="update()">
+            <option value="1.2">VEHICLES / TRANSPORT</option>
+            <option value="1.1">REAL ESTATE / LAND</option>
+            <option value="1.5">LIVESTOCK / ANIMALS</option>
+            <option value="1.8">SPECIALTY / HARD TO MOVE</option>
+        </select>
+
+        <input type="text" placeholder="DESCRIBE ASSET (Location/Title)...">
+        <input type="number" id="val" oninput="update()" placeholder="FAIR MARKET VALUE (USD/ETH)">
+
+        <div style="margin:20px 0;">
+            <span style="font-size:12px; color:#888;">CONSOLIDATED EXCHANGE QUOTE:</span>
+            <div id="quote" style="font-size:32px; font-weight:bold;">0.00</div>
+        </div>
+
+        <button class="btn" onclick="alert('Establishing Secure Handshake... Deactivating Duplicates.')">EXECUTE PRIVATE TRADE</button>
+    </div>
+
+    <script>
+        function update() {
+            const m = document.getElementById('type').value;
+            const v = document.getElementById('val').value;
+            document.getElementById('quote').innerText = (v * m).toFixed(2);
+        }
+    </script>
+</body>
+</html>
